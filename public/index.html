@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR File Share - Offline File Transfer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>📦 QR File Share</h1>
+      <p>Share large files offline using QR codes</p>
+    </header>
+
+    <div class="main-content">
+      <!-- Tab Navigation -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="sender">
+          📤 Send File (Generator)
+        </button>
+        <button class="tab-btn" data-tab="receiver">
+          📥 Receive File (Scanner)
+        </button>
+      </div>
+
+      <!-- Sender Tab -->
+      <div class="tab-content active" id="sender-tab">
+        <div class="section">
+          <h2>Step 1: Upload File</h2>
+          <div class="upload-area" id="uploadArea">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p>Drag and drop your file here</p>
+            <p class="text-muted">or click to select</p>
+            <input type="file" id="fileInput" hidden>
+          </div>
+          <div class="file-info" id="fileInfo" style="display: none;">
+            <p><strong>File:</strong> <span id="fileName"></span></p>
+            <p><strong>Size:</strong> <span id="fileSize"></span></p>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Step 2: Configure Settings</h2>
+          <div class="form-group">
+            <label for="chunkSize">Chunk Size (bytes):</label>
+            <input type="number" id="chunkSize" value="1024" min="512" max="5000">
+            <small>Smaller chunks = more QR codes but better error correction</small>
+          </div>
+          <button class="btn btn-primary" id="generateBtn" disabled>
+            🔄 Generate QR Codes
+          </button>
+          <div class="loading" id="loadingGen" style="display: none;">
+            <div class="spinner"></div>
+            <p>Generating QR codes...</p>
+          </div>
+        </div>
+
+        <div class="section" id="qrSection" style="display: none;">
+          <h2>Step 3: QR Codes Generated</h2>
+          <div class="qr-stats">
+            <p><strong>Total Chunks:</strong> <span id="totalChunks"></span></p>
+            <p><strong>File Hash:</strong> <span id="fileHash" class="mono"></span></p>
+          </div>
+          
+          <div class="qr-controls">
+            <button class="btn btn-secondary" id="downloadAllBtn">⬇️ Download All QR Codes</button>
+            <button class="btn btn-secondary" id="printBtn">🖨️ Print QR Codes</button>
+          </div>
+
+          <div class="qr-gallery" id="qrGallery"></div>
+        </div>
+      </div>
+
+      <!-- Receiver Tab -->
+      <div class="tab-content" id="receiver-tab">
+        <div class="section">
+          <h2>Step 1: Scan QR Codes</h2>
+          <p class="text-muted">Use your camera or phone to scan the QR codes one by one</p>
+          
+          <div class="camera-section">
+            <video id="video" class="camera-feed"></video>
+            <canvas id="canvas" style="display: none;"></canvas>
+            <button class="btn btn-primary" id="startCameraBtn">
+              📷 Start Camera
+            </button>
+            <button class="btn btn-secondary" id="stopCameraBtn" style="display: none;">
+              ⏹️ Stop Camera
+            </button>
+          </div>
+
+          <div class="manual-input">
+            <h3>Or Enter QR Data Manually</h3>
+            <textarea id="qrDataInput" placeholder="Paste QR code data here..."></textarea>
+            <button class="btn btn-secondary" id="addManualBtn">➕ Add Chunk</button>
+          </div>
+        </div>
+
+        <div class="section" id="chunkListSection" style="display: none;">
+          <h2>Step 2: Scanned Chunks</h2>
+          <div class="chunk-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="progressText">0 / 0 chunks scanned</p>
+          </div>
+          
+          <div class="chunks-list" id="chunksList"></div>
+
+          <button class="btn btn-primary" id="reassembleBtn" disabled>
+            ✅ Reassemble & Download File
+          </button>
+          <button class="btn btn-secondary" id="clearBtn">
+            🗑️ Clear All
+          </button>
+        </div>
+
+        <div class="loading" id="loadingReassemble" style="display: none;">
+          <div class="spinner"></div>
+          <p>Reassembling file...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for QR Preview -->
+  <div class="modal" id="qrModal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div id="modalQRContainer"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
